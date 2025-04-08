@@ -1,6 +1,63 @@
 // Your code here.
 // Select all the items (cubes)
 const items = document.querySelectorAll('.item');
+const container = document.getElementById('drag-container');
+
+let selectedItem = null;
+let offsetX = 0;
+let offsetY = 0;
+
+items.forEach(item => {
+  item.addEventListener('mousedown', (e) => {
+    selectedItem = item;
+    selectedItem.style.position = 'absolute';
+    selectedItem.style.zIndex = 1000;
+
+    const rect = selectedItem.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    moveAt(e.pageX, e.pageY);
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+});
+
+function moveAt(pageX, pageY) {
+  if (!selectedItem) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const itemWidth = selectedItem.offsetWidth;
+  const itemHeight = selectedItem.offsetHeight;
+
+  let newLeft = pageX - containerRect.left - offsetX;
+  let newTop = pageY - containerRect.top - offsetY;
+
+  // Constrain inside the container
+  newLeft = Math.max(0, Math.min(newLeft, container.offsetWidth - itemWidth));
+  newTop = Math.max(0, Math.min(newTop, container.offsetHeight - itemHeight));
+
+  selectedItem.style.left = newLeft + 'px';
+  selectedItem.style.top = newTop + 'px';
+}
+
+function onMouseMove(e) {
+  if (selectedItem) {
+    moveAt(e.pageX, e.pageY);
+  }
+}
+
+function onMouseUp() {
+  if (selectedItem) {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    selectedItem.style.zIndex = '';
+    selectedItem = null;
+  }
+}
+/*
+const items = document.querySelectorAll('.item');
 
 // Variable to keep track of the selected cube and its initial position
 let selectedItem = null;
@@ -43,3 +100,4 @@ function onMouseUp() {
   // Reset the selected item
   selectedItem = null;
 }
+*/
